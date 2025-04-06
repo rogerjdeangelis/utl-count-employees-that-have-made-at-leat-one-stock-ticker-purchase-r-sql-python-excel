@@ -45,7 +45,7 @@ I also selected just the data that was needed.
 /*       69   1004    ABX              | 1003    ABX   1                            |                                        */
 /*       70   1004    KUL              | 1004    ABX                                |                                        */
 /*                                     | 1004    ABX   1                            |                                        */
-/*  options validvarname=upcase;       |               3*                           |                                        */
+/*  options validvarname=upcase;       |               3* 1001,1003,1004            |                                        */
 /*  libname sd1 "d:/sd1";              | 1001    ATX                                |                                        */
 /*  data sd1.have;                     | 1001    ATX                                |                                        */
 /*    informat empl tick $4.;          | 1001    ATX                                |                                        */
