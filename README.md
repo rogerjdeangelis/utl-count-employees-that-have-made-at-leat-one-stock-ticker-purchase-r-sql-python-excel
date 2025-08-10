@@ -1,5 +1,3 @@
-# utl-count-employees-that-have-made-at-leat-one-stock-ticker-purchase-r-sql-python-excel
-Count employees that have made at leat one stock ticker purchase r sql python excel 
     %let pgm=utl-count-employees-that-have-made-at-leat-one-stock-ticker-purchase-r-sql-python-excel;
 
     %stop_submission;
@@ -15,6 +13,9 @@ Count employees that have made at leat one stock ticker purchase r sql python ex
          4 excel sql
            not shown see
            https://tinyurl.com/4e6yaap8
+         5 fast solutions using sas procs
+           Keintz, Mark
+           mkeintz@outlook.com
 
     github
     https://tinyurl.com/yx3535eu
@@ -47,7 +48,7 @@ Count employees that have made at leat one stock ticker purchase r sql python ex
     /*       69   1004    ABX              | 1003    ABX   1                            |                                        */
     /*       70   1004    KUL              | 1004    ABX                                |                                        */
     /*                                     | 1004    ABX   1                            |                                        */
-    /*  options validvarname=upcase;       |               3*  1001,1003,1004           |                                        */
+    /*  options validvarname=upcase;       |               3* 1001,1003,1004            |                                        */
     /*  libname sd1 "d:/sd1";              | 1001    ATX                                |                                        */
     /*  data sd1.have;                     | 1001    ATX                                |                                        */
     /*    informat empl tick $4.;          | 1001    ATX                                |                                        */
@@ -86,7 +87,7 @@ Count employees that have made at leat one stock ticker purchase r sql python ex
     /*                                     |       by tick                              |                                        */
     /*                                     | ;quit;                                     |                                        */
     /*                                     |                                            |                                        */
-    /*                                     |                                            |                                        */
+    /*                                     |-------------------------------------------------------------------------------------*/
     /*                                     | 2 R SQL                                    |                                        */
     /*                                     | ================================           |                                        */
     /*                                     |                                            |                                        */
@@ -117,7 +118,7 @@ Count employees that have made at leat one stock ticker purchase r sql python ex
     /*                                     | ;;;;                                       |                                        */
     /*                                     | %utl_rendx;                                |                                        */
     /*                                     |                                            |                                        */
-    /*                                     |                                            |                                        */
+    /*                                     |-------------------------------------------------------------------------------------*/
     /*                                     | 3 PYTHON SQL                               |                                        */
     /*                                     | ================================           |                                        */
     /*                                     | %utl_pybeginx;                             |                                        */
@@ -141,6 +142,34 @@ Count employees that have made at leat one stock ticker purchase r sql python ex
     /*                                     | ;;;;                                       |                                        */
     /*                                     | %utl_pyendx;                               |                                        */
     /*                                     |                                            |                                        */
+    /*                                     |                                            |                                        */
+    /*                                     |-------------------------------------------------------------------------------------*/
+    /*                                     | 5 FAST SOLUTIONS USING SAS PROCS           | TICK    COUNT                          */
+    /*                                     | ================================           |                                        */
+    /*                                     | TWO SOLUTIONS                              | ABX       3                            */
+    /*                                     |                                            | ATX       3                            */
+    /*                                     | proc freq data=sd1.have noprint;           | BTR       4                            */
+    /*                                     |   tables empl * tick                       | KUL       2                            */
+    /*                                     |  /out=need (keep=empl tick);               | LOV       3                            */
+    /*                                     | run;                                       | MYX       4                            */
+    /*                                     |                                            | SXX       2                            */
+    /*                                     | proc freq data=need;                       | XYZ       3                            */
+    /*                                     |  tables tick /                             |                                        */
+    /*                                     |  out=want(drop=percent);                   |                                        */
+    /*                                     | run;                                       |                                        */
+    /*                                     |                                            | TICK    COUNT                          */
+    /*                                     |                                            |                                        */
+    /*                                     | proc freq data=sd1.have noprint;           | ABX       3                            */
+    /*                                     |   tables empl * tick                       | ATX       3                            */
+    /*                                     |  /out=need (keep=empl tick count);         | BTR       4                            */
+    /*                                     | run;                                       | KUL       2                            */
+    /*                                     |                                            | LOV       3                            */
+    /*                                     | proc means data=need nway;                 | MYX       4                            */
+    /*                                     |   class tick;                              | SXX       2                            */
+    /*                                     |   var count;                               | XYZ       3                            */
+    /*                                     | output out=want(drop=_:)                   |                                        */
+    /*                                     |  n=count;                                                                           */
+    /*                                     | run;                                                                                */
     /*****************************************************************************************************************************/
 
     /*                   _
@@ -344,6 +373,67 @@ Count employees that have made at leat one stock ticker purchase r sql python ex
     /* 7  XYZ      3  |    XYZ       3                                                                                        */
     /**************************************************************************************************************************/
 
+    /*___
+    | ___|   ___  __ _ ___   _ __  _ __ ___   ___ ___
+    |___ \  / __|/ _` / __| | `_ \| `__/ _ \ / __/ __|
+     ___) | \__ \ (_| \__ \ | |_) | | | (_) | (__\__ \
+    |____/  |___/\__,_|___/ | .__/|_|  \___/ \___|___/
+                            |_|
+    */
+
+
+    proc freq data=sd1.have noprint;
+      tables empl * tick
+     /out=need (keep=empl tick);
+    run;
+
+    proc freq data=need;
+      tables tick/out=want(drop=percent);
+    run;
+
+    proc freq data=sd1.have noprint;
+      tables empl * tick
+     /out=need (keep=empl tick count);
+    run;
+
+    proc means data=need nway;
+      class tick;
+      var count;
+    output out=want n=count;
+    run;
+
+    This is especially useful if you have a lot of high frequency traders,
+    or traders with long histories, i.e. lots a trades for a very few empl/tick combinations.
+
+
+    /**************************************************************************************************************************/
+    /*  TWO SOLUTIONS                     | TICK    COUNT                                                                     */
+    /*                                    |                                                                                   */
+    /* proc freq data=sd1.have noprint;   | ABX       3                                                                       */
+    /*   tables empl * tick               | ATX       3                                                                       */
+    /*  /out=need (keep=empl tick);       | BTR       4                                                                       */
+    /* run;                               | KUL       2                                                                       */
+    /*                                    | LOV       3                                                                       */
+    /* proc freq data=need;               | MYX       4                                                                       */
+    /*  tables tick /                     | SXX       2                                                                       */
+    /*  out=want(drop=percent);           | XYZ       3                                                                       */
+    /* run;                               |                                                                                   */
+    /*                                    |                                                                                   */
+    /*                                    |                                                                                   */
+    /* proc freq data=sd1.have noprint;   | TICK    COUNT                                                                     */
+    /*   tables empl * tick               |                                                                                   */
+    /*  /out=need (keep=empl tick count); | ABX       3                                                                       */
+    /* run;                               | ATX       3                                                                       */
+    /*                                    | BTR       4                                                                       */
+    /* proc means data=need nway;         | KUL       2                                                                       */
+    /*   class tick;                      | LOV       3                                                                       */
+    /*   var count;                       | MYX       4                                                                       */
+    /* output out=want(drop=_:)           | SXX       2                                                                       */
+    /*  n=count;                          | XYZ       3                                                                       */
+    /* run;                               |                                                                                   */
+    /**************************************************************************************************************************/
+
+
     /*              _
       ___ _ __   __| |
      / _ \ `_ \ / _` |
@@ -351,3 +441,4 @@ Count employees that have made at leat one stock ticker purchase r sql python ex
      \___|_| |_|\__,_|
 
     */
+
